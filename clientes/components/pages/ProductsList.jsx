@@ -1,16 +1,39 @@
 import { useEffect, useState } from "react"
 import { View, Text , StyleSheet,FlatList, Pressable} from "react-native"
 import * as color from "../../colors"
-
+import * as SecureStorage from "expo-secure-store"
 import Product from "./Product"
 import { useNavigation } from "@react-navigation/native"
+import { modifyUser } from "../../services/user.service"
 
 const Key = "my-key"
-const ProductsList = ({List,product}) =>{
-    const [products, setProduct] = useState([{name:"albondia",price:2.0,quantity:20, status:"comprado" }])
+const ProductsList = ({user, setUser, List,product}) =>{
+    const [selectProduct , setSelectProduct] = useState([])
+
     const navigate= useNavigation()
     
-    
+    const selectProductAdd = (value) =>{
+        if(selectProduct.includes(value)){
+            setSelectProduct(selectProduct.filter((product)=> product.idProduct !== value.idProduct))
+        }else{
+            setSelectProduct([...selectProduct,value])
+            
+        }
+    }   
+
+    const buyProduct = async () =>{
+        let totalCost = 0
+        selectProduct.forEach((data)=>{
+            totalCost += parseFloat(data.price)* parseFloat(data.quantity)
+        })
+        const totalBalance = parseFloat(user.balance) - totalCost 
+
+        const newUser = await modifyUser(user, totalBalance, await SecureStorage.getItemAsync(Key))
+
+        setUser(newUser)
+
+        navigate.navigate("Finances")
+    }
     return(
        <View style={styles.containerProduct}>
             <Text style={{...styles.titleList, backgroundColor:color.light.primary}}>{List.name}</Text>
@@ -19,16 +42,26 @@ const ProductsList = ({List,product}) =>{
                     const data = value.item
 
                         return(
-                            <Product key={value.index}
+                            <Pressable key={value.index} onPress={()=>selectProductAdd(data)}>
+                                <Product 
+                                selectProduct={selectProduct}
                                 product={data}/>
+                            </Pressable>
+                            
                         )
                     
                     
                 }}/>
             </View>
-            <Pressable onPress={()=> navigate.navigate("Finances")} style={{...styles.backButton, backgroundColor:color.light.secundary}}>
-                <Text style={{...styles.textButton}}>atras</Text>
-            </Pressable>
+            <View style={styles.buttonContainer}>
+                <Pressable onPress={()=> navigate.navigate("Finances")} style={{...styles.backButton, backgroundColor:color.light.secundary}}>
+                    <Text style={{...styles.textButton}}>Cancelar</Text>
+                </Pressable>
+                <Pressable onPress={() => buyProduct()} style={{...styles.backButton, backgroundColor:color.light.secundary}}>
+                    <Text style={{...styles.textButton}}>Comprar</Text>
+                </Pressable>
+            </View>
+            
             
        </View>
     )
@@ -70,6 +103,11 @@ const styles = StyleSheet.create({
         textAlign:"center",
         fontWeight:"bold",
         fontSize:15
+    },
+    buttonContainer:{
+        flexDirection:"row",
+        justifyContent:"space-around",
+        width:"80%"
     }
 
 })

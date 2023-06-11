@@ -2,13 +2,11 @@ import { View, Text, StyleSheet} from "react-native"
 import * as color from "../../colors"
 import { useEffect } from "react"
 
-const Product = ({product}) =>{
-    useEffect(()=>{
-        console.log(product)
-    },[])
+const Product = ({product, selectProduct}) =>{
+
     return(
-        <View style={styles.containerProduct}>
-            <View style={{...styles.viewProduct, backgroundColor:color.light.secundary}}>
+        <View style={styles.containerProduct} >
+            <View style={selectProduct.includes(product)? {...styles.viewProduct, backgroundColor:"gray" }:{...styles.viewProduct, backgroundColor:color.light.secundary }}>
                 <Text style={styles.textProduct}>nombre: {product.name}</Text>
                 <Text style={styles.textProduct}>precio: {product.price}</Text>
                 <Text style={styles.textProduct}>cantidad: {product.quantity}</Text>

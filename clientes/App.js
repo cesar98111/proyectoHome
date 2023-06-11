@@ -115,7 +115,7 @@ export default function App() {
                 {()=><GroupFinance user={user} setGroup={setGroup} setLists={setLists} users={users} setUsers={setUsers}/>}
               </Drawer.Screen>
               <Drawer.Screen name="Products">
-                {()=><ProductsList List={list} product={products} />}
+                {()=><ProductsList user={user} setUser={setUser} List={list} product={products} />}
               </Drawer.Screen>
               <Drawer.Screen name="Finances">
                 {()=><Finances group={group} setLists={setLists} lists={lists} list={list} setList={setList} users={users} setProducts={setProducts}/>}
